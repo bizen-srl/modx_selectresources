@@ -1,0 +1,57 @@
+<?php
+/**
+ * SelectResources
+ *
+ * @author Manuel Barbiero 2019
+ *
+ * DESCRIPTION
+ *
+ * Creates a select field of resources based on given options
+ *
+ * PROPERTIES:
+ *
+ * &hidemenu int. Default: 0
+ * &published int. Default: 1
+ * &context string. Default: current
+ *
+ * USAGE:
+ *
+ * @EVAL return $modx->runSnippet('SelectResources', array('template' => 3));
+ *
+ */
+
+$hidemenu = (int) $modx->getOption('hidemenu', $scriptProperties, 0);
+$published = (int) $modx->getOption('published', $scriptProperties, 1);
+$context = (string) $modx->getOption('context', $scriptProperties, $modx->resource->get('context_key'));
+
+// Set the data
+$criteria = array(
+	'hidemenu' => $hidemenu,
+	'published' => $published,
+	'context_key' => $context
+);
+
+
+// set all the additional data passed to the snippet
+foreach($scriptProperties as $key=>$value) {
+	$criteria[$key] = $value;
+}
+
+// Query to get resources
+$q = $modx->newQuery('modResource', $criteria);
+$q->select(array('id', 'pagetitle'));
+
+// Get the colletion of resources
+$resources = $modx->getCollection('modResource', $q);
+
+// Init output array
+$resArr = array();
+
+// Loop through all resources
+foreach($resources as $resource) {
+	$resArr[] = $resource->get('pagetitle').'=='.$resource->get('id');
+}
+
+$output = implode('||', $resArr);
+
+return $output;
